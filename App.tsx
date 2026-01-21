@@ -47,17 +47,28 @@ const AIStrategyModal = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => 
   const [strategy, setStrategy] = useState<any>(null);
   const [loading, setLoading] = useState(false);
 
+  const cleanJsonResponse = (text: string) => {
+    // Remove markdown code blocks if present
+    let cleaned = text.trim();
+    if (cleaned.startsWith('```')) {
+      cleaned = cleaned.replace(/^```(?:json)?/, '').replace(/```$/, '').trim();
+    }
+    return cleaned;
+  };
+
   const generateStrategy = async () => {
-    if (!input) return;
+    if (!input.trim()) return;
     setLoading(true);
     setStrategy(null);
+    
     try {
+      // Inicia a instância aqui para garantir o acesso ao process.env.API_KEY
       const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
       const response = await ai.models.generateContent({
         model: 'gemini-3-pro-preview',
         contents: `Analise meu negócio e como um novo site profissional pode me ajudar a escalar: ${input}`,
         config: {
-          systemInstruction: "Você é o estrategista-chefe da TechView Digital. Sua missão é explicar como um site de alta performance (UI/UX premium, velocidade máxima) é o alicerce para escala digital. Foque na oferta de sites profissionais.",
+          systemInstruction: "Você é o estrategista-chefe da TechView Digital. Sua missão é explicar como um site de alta performance (UI/UX premium, velocidade máxima) é o alicerce para escala digital. Foque na oferta de sites profissionais. Retorne APENAS um JSON válido.",
           responseMimeType: "application/json",
           responseSchema: {
             type: Type.OBJECT,
@@ -74,15 +85,18 @@ const AIStrategyModal = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => 
 
       const responseText = response.text;
       if (responseText) {
-        setStrategy(JSON.parse(responseText.trim()));
+        const cleanedText = cleanJsonResponse(responseText);
+        setStrategy(JSON.parse(cleanedText));
+      } else {
+        throw new Error("Resposta vazia da IA");
       }
     } catch (e) {
-      console.error(e);
+      console.error("Erro na análise IA:", e);
       setStrategy({ 
-        titulo: "Arquitetura em Análise", 
-        analise: "Seu nicho exige um site ultra-veloz. Chame no WhatsApp para vermos o layout ideal para sua conversão.",
-        alavancas: ["Design Exclusivo", "Carregamento em < 1s", "Copy de Vendas"],
-        impacto: "Conversão 3x Maior"
+        titulo: "Análise Técnica Prioritária", 
+        analise: "Seu nicho possui alta competitividade. Um site TechView colocará você no topo. Devido à alta demanda, nossa IA está em manutenção, mas nossos especialistas estão prontos para te atender.",
+        alavancas: ["Arquitetura de Conversão Premium", "Otimização de Carregamento < 1s", "UX/UI focado em Vendas"],
+        impacto: "Dominação de Mercado"
       });
     } finally {
       setLoading(false);
@@ -93,7 +107,7 @@ const AIStrategyModal = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => 
 
   return (
     <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-slate-950/98 backdrop-blur-xl animate-in fade-in">
-      <div className="bg-slate-900 border-2 border-cyan-600/20 p-8 md:p-12 rounded-[2.5rem] max-w-2xl w-full shadow-2xl space-y-8 max-h-[90vh] overflow-y-auto relative">
+      <div className="bg-slate-900 border-2 border-cyan-600/20 p-8 md:p-12 rounded-[2.5rem] max-w-2xl w-full shadow-2xl space-y-8 max-h-[90vh] overflow-y-auto relative border-glow">
         <button onClick={onClose} className="absolute top-8 right-8 text-slate-500 hover:text-white transition-colors">
           <X size={28} />
         </button>
@@ -112,11 +126,20 @@ const AIStrategyModal = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => 
           />
           <button 
             onClick={generateStrategy}
-            disabled={loading || !input}
-            className="w-full bg-cyan-600 hover:bg-cyan-500 disabled:opacity-50 text-white font-black py-6 rounded-full transition-all uppercase tracking-widest flex items-center justify-center gap-3 group shadow-xl shadow-cyan-600/20"
+            disabled={loading || !input.trim()}
+            className="w-full bg-cyan-600 hover:bg-cyan-500 disabled:opacity-50 disabled:cursor-not-allowed text-white font-black py-6 rounded-full transition-all uppercase tracking-widest flex items-center justify-center gap-3 group shadow-xl shadow-cyan-600/20"
           >
-            {loading ? "Calculando Estrutura de Conversão..." : "Receber Diagnóstico do Site"}
-            <Zap size={22} fill="currentColor" />
+            {loading ? (
+              <>
+                <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                Calculando Estrutura...
+              </>
+            ) : (
+              <>
+                Receber Diagnóstico do Site
+                <Zap size={22} fill="currentColor" />
+              </>
+            )}
           </button>
         </div>
 
