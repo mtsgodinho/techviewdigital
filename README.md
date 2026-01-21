@@ -1,11 +1,37 @@
-<div align="center">
 
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
+# 🚀 TechView Digital - Landing Page de Alta Performance
 
-  <h1>Built with AI Studio</h2>
+Esta é a Landing Page oficial da **TechView Digital**, uma agência focada em posicionamento digital agressivo, sites ultra-velozes e escala de negócios.
 
-  <p>The fastest path from prompt to production with Gemini.</p>
+## 🛠️ Tecnologias Utilizadas
+- **React 19** (Core)
+- **Tailwind CSS** (Design & Layout)
+- **Lucide React** (Iconografia)
+- **Vite** (Build Tool de próxima geração)
+- **TypeScript** (Segurança e Tipagem)
 
-  <a href="https://aistudio.google.com/apps">Start building</a>
+## 🎯 Objetivo do Projeto
+Transformar visitantes em leads qualificados através de uma interface imersiva, "mobile-first" e focada em conversão direta para o WhatsApp.
 
-</div>
+## 🚀 Como Rodar o Projeto
+
+1. Instale as dependências:
+   ```bash
+   npm install
+   ```
+
+2. Inicie o servidor de desenvolvimento:
+   ```bash
+   npm run dev
+   ```
+
+3. Para gerar a versão de produção:
+   ```bash
+   npm run build
+   ```
+
+## 🌐 Deploy na Vercel
+O projeto está pronto para deploy contínuo. Ao conectar este repositório à Vercel, o build será feito automaticamente seguindo as configurações do `vercel.json`.
+
+---
+*Desenvolvido com foco em resultados reais e tecnologia de elite.*
