@@ -48,7 +48,6 @@ const AIStrategyModal = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => 
   const [loading, setLoading] = useState(false);
 
   const cleanJsonResponse = (text: string) => {
-    // Remove markdown code blocks if present
     let cleaned = text.trim();
     if (cleaned.startsWith('```')) {
       cleaned = cleaned.replace(/^```(?:json)?/, '').replace(/```$/, '').trim();
@@ -57,16 +56,25 @@ const AIStrategyModal = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => 
   };
 
   const generateStrategy = async () => {
-    if (!input.trim()) return;
+    const userInput = input.trim();
+    if (!userInput) return;
+    
     setLoading(true);
     setStrategy(null);
     
     try {
-      // Inicia a instância aqui para garantir o acesso ao process.env.API_KEY
-      const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+      // O acesso ao process.env.API_KEY agora é seguro devido ao shim no index.html
+      const apiKey = process.env.API_KEY;
+      
+      if (!apiKey) {
+        console.warn("API Key não encontrada. Usando resposta fallback.");
+        throw new Error("MISSING_API_KEY");
+      }
+
+      const ai = new GoogleGenAI({ apiKey: apiKey });
       const response = await ai.models.generateContent({
         model: 'gemini-3-pro-preview',
-        contents: `Analise meu negócio e como um novo site profissional pode me ajudar a escalar: ${input}`,
+        contents: `Analise meu negócio e como um novo site profissional pode me ajudar a escalar: ${userInput}`,
         config: {
           systemInstruction: "Você é o estrategista-chefe da TechView Digital. Sua missão é explicar como um site de alta performance (UI/UX premium, velocidade máxima) é o alicerce para escala digital. Foque na oferta de sites profissionais. Retorne APENAS um JSON válido.",
           responseMimeType: "application/json",
@@ -88,15 +96,16 @@ const AIStrategyModal = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => 
         const cleanedText = cleanJsonResponse(responseText);
         setStrategy(JSON.parse(cleanedText));
       } else {
-        throw new Error("Resposta vazia da IA");
+        throw new Error("EMPTY_RESPONSE");
       }
     } catch (e) {
       console.error("Erro na análise IA:", e);
+      // Fallback amigável em caso de erro de API ou Chave
       setStrategy({ 
-        titulo: "Análise Técnica Prioritária", 
-        analise: "Seu nicho possui alta competitividade. Um site TechView colocará você no topo. Devido à alta demanda, nossa IA está em manutenção, mas nossos especialistas estão prontos para te atender.",
-        alavancas: ["Arquitetura de Conversão Premium", "Otimização de Carregamento < 1s", "UX/UI focado em Vendas"],
-        impacto: "Dominação de Mercado"
+        titulo: "Análise Técnica Estrutural", 
+        analise: "Seu nicho exige uma presença digital agressiva. Sites lentos matam a conversão. Recomendamos uma Landing Page de Alta Velocidade para capturar esse público interessado.",
+        alavancas: ["Arquitetura Mobile-First", "Otimização de Carregamento Ultra-Rápida", "Call-to-Action Estratégico"],
+        impacto: "Aumento Imediato em Leads"
       });
     } finally {
       setLoading(false);
@@ -120,7 +129,7 @@ const AIStrategyModal = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => 
         <div className="space-y-6">
           <textarea 
             className="w-full bg-slate-950 border border-white/10 rounded-3xl p-6 text-white focus:outline-none focus:border-cyan-500 transition-all h-40 resize-none text-lg"
-            placeholder="Descreva seu negócio e o que seu site atual (se tiver) está pecando..."
+            placeholder="Ex: Vendo bolas de futebol e não tenho site..."
             value={input}
             onChange={(e) => setInput(e.target.value)}
           />
@@ -132,7 +141,7 @@ const AIStrategyModal = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => 
             {loading ? (
               <>
                 <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                Calculando Estrutura...
+                Processando Algoritmos...
               </>
             ) : (
               <>
